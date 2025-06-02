@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ca">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Relaciona les dues columnes</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Fedra Sans", sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    .intro {
+      background-color: #007196;
+      color: white;
+      text-align: center;
+      padding: 2rem;
+      box-shadow: 0 0 12px rgba(0, 113, 150, 0.5);
+    }
+
+    .btn {
+      background-color: white;
+      color: #007196;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 2rem;
+      font-weight: 600;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #007196;
+      color: white;
+      border: 2px solid white;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background-color: #bbb;
+      color: #333;
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: none;
+      font-size: 0.9rem;
+      cursor: pointer;
+      user-select: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      transition: background-color 0.25s ease;
+    }
+
+    .back-btn:hover {
+      background-color: #007196;
+      color: white;
+      border: 2px solid white;
+    }
+
+    h2 {
+      font-weight: 700;
+      margin-bottom: 24px;
+      font-size: 28px;
+      user-select: none;
+    }
+
+    .container {
+      display: flex;
+      gap: 40px;
+      width: 100%;
+      max-width: 1000px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .column {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgb(0 65 89 / 0.15);
+      padding: 24px 28px;
+      flex: 1;
+      min-width: 300px;
+      min-height: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .option {
+      font-weight: 600;
+      font-size: 17px;
+      background: #e0f7fa;
+      border-radius: 12px;
+      border: 2px solid #004159;
+      padding: 14px 18px;
+      cursor: grab;
+      user-select: none;
+      white-space: nowrap;
+      display: inline-block;
+      max-width: 100%;
+    }
+
+    .option:active {
+      cursor: grabbing;
+      background-color: #007196;
+      color: white;
+    }
+
+    .option.used {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .option.correct {
+      background-color: #1a8e1a;
+      border-color: #0d620d;
+      color: white;
+    }
+
+    .option.incorrect {
+      background-color: #e14444;
+      border-color: #a00000;
+      color: white;
+    }
+
+    .match {
+      background: #f0f9fb;
+      border: 2px dashed #007196;
+      border-radius: 14px;
+      padding: 14px 20px;
+      font-size: 15px;
+      min-height: 56px;
+      line-height: 1.4;
+    }
+
+    .match.filled {
+      background-color: #ccefff;
+      border-style: solid;
+    }
+
+    .match.correct {
+      background-color: #007196;
+      border: 2px solid #004159;
+      color: white;
+    }
+
+    .match.incorrect {
+      background-color: #ffdddd;
+      border-color: #a00000;
+      color: black;
+    }
+
+    .score-btn {
+      margin-top: 20px;
+      background-color: #007196;
+      color: white;
+      padding: 12px 28px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 113, 150, 0.6);
+    }
+
+    #scoreDisplay {
+      margin-top: 16px;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="introScreen" class="screen intro active">
+    <h1>RELACIONA LES DUES COLUMNES</h1>
+    <p>Arrossega cada definició a la seva correspondència.</p>
+    <button class="btn" onclick="startExercise()">Començar</button>
+  </div>
+
+  <div id="exerciseScreen" class="screen">
+    <button class="btn back-btn" onclick="goBack()">&larr;  Torna enrere </button>
+    <h2>Relaciona les dues columnes</h2>
+    <div class="container">
+      <div class="column" id="left-column">
+        <div class="option" draggable="true" data-match="latitud">La latitud és</div>
+        <div class="option" draggable="true" data-match="paral-lels">Els paral·lels són</div>
+        <div class="option" draggable="true" data-match="planol">Un plànol és</div>
+        <div class="option" draggable="true" data-match="meridians">Els meridians són</div>
+        <div class="option" draggable="true" data-match="numerica">L'escala numèrica d'un mapa</div>
+        <div class="option" draggable="true" data-match="cartografs">Els cartògrafs són</div>
+        <div class="option" draggable="true" data-match="grafica">L'escala gràfica d'un mapa</div>
+        <div class="option" draggable="true" data-match="planisferi">Un planisferi és</div>
+        <div class="option" draggable="true" data-match="longitud">La longitud és</div>
+      </div>
+
+      <div class="column" id="right-column">
+        <div class="match" data-match="latitud">La distància entre qualsevol punt de la Terra i el paral·lel 0°.</div>
+        <div class="match" data-match="paral-lels">Línies horitzontals imaginàries que recorren la Terra.</div>
+        <div class="match" data-match="planol">Un mapa a escala molt gran.</div>
+        <div class="match" data-match="meridians">Línies verticals imaginàries que recorren la Terra entre el pol nord i
+          el pol sud.</div>
+        <div class="match" data-match="numerica">Es representa amb una fracció.</div>
+        <div class="match" data-match="cartografs">Persones que elaboren mapes.</div>
+        <div class="match" data-match="grafica">Es representa amb una línia recta dividida en segments iguals.</div>
+        <div class="match" data-match="planisferi">La representació de tota la superfície de la Terra.</div>
+        <div class="match" data-match="longitud">La distància entre qualsevol punt de la Terra i el meridià 0°.</div>
+      </div>
+    </div>
+    <button class="score-btn" onclick="checkAnswers()">Comprova</button>
+    <div id="scoreDisplay"></div>
+  </div>
+
+  <script>
+    function startExercise() {
+      const elem = document.documentElement;
+
+      // Fullscreen request (cross-browser)
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen(); // Safari
+      } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen(); // IE11
+      }
+
+      document.getElementById("introScreen").classList.remove("active");
+      document.getElementById("exerciseScreen").style.display = "flex"; // use flex here to keep flex styles
+    }
+
+    function goBack() {
+      // Exit fullscreen (cross-browser)
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen(); // Safari
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen(); // IE11
+      }
+
+      document.getElementById("introScreen").classList.add("active");
+      document.getElementById("exerciseScreen").style.display = "none";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const options = document.querySelectorAll(".option");
+      const matchContainer = document.getElementById("right-column");
+      const matches = Array.from(matchContainer.children);
+
+      // Shuffle right column
+      for (let i = matches.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        matchContainer.appendChild(matches[j]);
+      }
+
+      // Drag logic
+      options.forEach(option => {
+        option.addEventListener("dragstart", event => {
+          event.dataTransfer.setData("text/plain", option.dataset.match);
+        });
+      });
+
+      const matchBoxes = document.querySelectorAll(".match");
+
+      matchBoxes.forEach(match => {
+        match.addEventListener("dragover", event => {
+          event.preventDefault();
+          match.style.backgroundColor = "#c9e9f9";
+        });
+
+        match.addEventListener("dragleave", () => {
+          match.style.backgroundColor = "";
+        });
+
+        match.addEventListener("drop", event => {
+          event.preventDefault();
+          match.style.backgroundColor = "";
+          const draggedMatchKey = event.dataTransfer.getData("text/plain");
+          const draggedOption = document.querySelector(`.option[data-match='${draggedMatchKey}']`);
+
+          if (draggedOption && !draggedOption.classList.contains("used")) {
+            match.textContent = draggedOption.textContent;
+            match.dataset.selected = draggedMatchKey;
+            match.classList.add("filled");
+
+            draggedOption.classList.add("used");
+            draggedOption.setAttribute("draggable", "false");
+          }
+        });
+      });
+    });
+
+    function checkAnswers() {
+      let score = 0;
+      const matches = document.querySelectorAll(".match");
+
+      matches.forEach(match => {
+        const correct = match.dataset.match;
+        const selected = match.dataset.selected;
+
+        match.classList.remove("correct", "incorrect");
+
+        if (selected === correct) {
+          match.classList.add("correct");
+          const option = document.querySelector(`.option[data-match='${selected}']`);
+          if (option) option.classList.add("correct");
+          score++;
+        } else {
+          match.classList.add("incorrect");
+          const option = document.querySelector(`.option[data-match='${selected}']`);
+          if (option) option.classList.add("incorrect");
+        }
+      });
+
+      document.getElementById("scoreDisplay").textContent = `Puntuació: ${score} de ${matches.length}`;
+    }
+  </script>
+
+</body>
+
+</html>
